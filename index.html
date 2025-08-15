@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0b1020"/>
+  <link rel="manifest" href="manifest.webmanifest"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <title>Kolkata One • TravelWithUs 2.0</title>
+
+  <!-- Bootstrap + Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Leaflet (OpenStreetMap) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- App Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <a class="navbar-brand" href="#" onclick="showPage('landingPage')"><i class="fa-solid fa-compass mr-1"></i> Kolkata One</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div id="nav" class="collapse navbar-collapse">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('homePage')">Home</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('tourPage')">Tour</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('foodPage')">Food</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('transportPage')">Transport</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('hotelPage')">Hotels</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('bookmarksPage')">Saved</a></li>
+    </ul>
+    <div class="my-2 my-lg-0 d-flex align-items-center">
+      <span class="pill mr-3" id="weatherWidget"><i class="fa-solid fa-cloud-sun mr-2"></i>Loading weather…</span>
+      <a class="btn btn-outline-light btn-sm mr-2" href="#" onclick="showPage('signinPage')"><i class="fa-regular fa-user mr-1"></i> Account</a>
+      <a class="btn btn-primary btn-sm" href="#" onclick="showContactModal()"><i class="fa-regular fa-envelope mr-1"></i> Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- LANDING -->
+<section id="landingPage" class="page-section active">
+  <div class="hero">
+    <div class="container">
+      <span class="badge badge-gradient px-3 py-2 mb-3">City of Joy • One stop app</span>
+      <h1>Plan. Book. Eat. Explore.<br/>Everything Kolkata in one place.</h1>
+      <p class="mt-3 mb-4">Hotels, guides, transport, iconic food joints, heritage walks—built for locals and travelers.</p>
+      <div>
+        <button class="cta-btn mr-2" onclick="showPage('homePage')"><i class="fa-solid fa-rocket"></i> Get Started</button>
+        <button class="btn btn-outline-light" onclick="showCommunityModal()"><i class="fa-solid fa-users"></i> Join Community</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIGNUP -->
+<section id="signinPage" class="page-section">
+  <div class="form-container">
+    <h3 class="text-center mb-3">Create account</h3>
+    <form onsubmit="handleSignup(event)">
+      <div class="form-row">
+        <div class="form-group col-md-6"><label>First name</label><input class="form-control" name="fname" required/></div>
+        <div class="form-group col-md-6"><label>Last name</label><input class="form-control" name="lname" required/></div>
+      </div>
+      <div class="form-group"><label>Mobile (10 digits)</label><input class="form-control" name="number" pattern="[0-9]{10}" required/></div>
+      <div class="form-group"><label>Email</label><input class="form-control" name="email" type="email" required/></div>
+      <div class="form-group"><label>Password</label><input class="form-control" name="password" type="password" required/></div>
+      <button class="btn btn-primary btn-block">Register</button>
+      <p class="text-center mt-3 muted">Already have an account? <a href="#" onclick="showPage('loginPage')">Login</a></p>
+    </form>
+  </div>
+</section>
+
+<!-- LOGIN -->
+<section id="loginPage" class="page-section">
+  <div class="form-container">
+    <h3 class="text-center mb-3">Welcome back</h3>
+    <form onsubmit="handleLogin(event)">
+      <div class="form-group"><label>Email</label><input class="form-control" name="email" type="email" required/></div>
+      <div class="form-group"><label>Password</label><input class="form-control" name="password" type="password" required/></div>
+      <button class="btn btn-primary btn-block">Login</button>
+      <p class="text-center mt-3 muted">New here? <a href="#" onclick="showPage('signinPage')">Create account</a></p>
+    </form>
+  </div>
+</section>
+
+<!-- HOME -->
+<section id="homePage" class="page-section">
+  <div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h3 class="section-title mb-0">Discover Kolkata</h3>
+      <input placeholder="Search anything (spots, food, transport)..." class="search-input" oninput="globalSearch(event)"/>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://images.unsplash.com/photo-1623937808646-4c4e3842b3f2?q=80&w=1200&auto=format&fit=crop" alt="Tourist spots">
+          <div class="card-body">
+            <h5 class="card-title">Tourist Attractions</h5>
+            <p class="card-text muted">Heritage & culture—Victoria, Howrah Bridge, Kumartuli, Eco Park, more.</p>
+            <button class="btn btn-primary" onclick="showPage('tourPage')">Explore</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1200&auto=format&fit=crop" alt="Food hubs">
+          <div class="card-body">
+            <h5 class="card-title">Food & Cafés</h5>
+            <p class="card-text muted">From Flurys & Peter Cat to old-school cabins and street food.</p>
+            <button class="btn btn-primary" onclick="showPage('foodPage')">Find food</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/AC13_metro_train_of_Kolkata_Metro_at_Chinar_Park_metro_station.jpg/1280px-AC13_metro_train_of_Kolkata_Metro_at_Chinar_Park_metro_station.jpg" alt="Transport">
+          <div class="card-body">
+            <h5 class="card-title">Transport</h5>
+            <p class="card-text muted">Metro, trams, ferries, buses & cabs—find the nearest and go.</p>
+            <button class="btn btn-primary" onclick="showPage('transportPage')">Get moving</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://images.unsplash.com/photo-1551776315-dde6d4829808?q=80&w=1200&auto=format&fit=crop" alt="Hotels">
+          <div class="card-body">
+            <h5 class="card-title">Hotels</h5>
+            <p class="card-text muted">Find hotels near you (OpenStreetMap). Add to plan & book directly.</p>
+            <button class="btn btn-primary" onclick="showPage('hotelPage')">Find hotels</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://images.unsplash.com/photo-1520975922219-463b811f82bc?q=80&w=1200&auto=format&fit=crop" alt="Guides">
+          <div class="card-body">
+            <h5 class="card-title">Book a Tour Guide</h5>
+            <p class="card-text muted">Heritage, food walk, or custom plans—vetted locals.</p>
+            <button class="btn btn-success" onclick="showBookGuideModal()">Book now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1200&auto=format&fit=crop" alt="Saved">
+          <div class="card-body">
+            <h5 class="card-title">Saved & Itinerary</h5>
+            <p class="card-text muted">Bookmark places you love and export your plan.</p>
+            <button class="btn btn-primary" onclick="showPage('bookmarksPage')">Open saved</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOUR PAGE -->
+<section id="tourPage" class="page-section">
+  <div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h3 class="section-title mb-0">Famous Tourist Spots</h3>
+      <div>
+        <button class="btn btn-outline-light mr-2" onclick="showPage('mapPage')"><i class="fa-solid fa-map"></i> Map</button>
+        <button class="btn btn-success" onclick="showBookGuideModal()"><i class="fa-solid fa-user-tie"></i> Book Guide</button>
+      </div>
+    </div>
+
+    <div class="row" id="tourCards"></div>
+  </div>
+</section>
+
+<!-- INTERACTIVE MAP -->
+<section id="mapPage" class="page-section">
+  <div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h3 class="section-title mb-0">Kolkata Map</h3>
+      <button class="btn btn-outline-light" onclick="showPage('tourPage')">Back to spots</button>
+    </div>
+    <div id="map" class="mb-3"></div>
+    <p class="muted">Tip: Click markers for quick directions in Google Maps.</p>
+  </div>
+</section>
+
+<!-- FOOD PAGE -->
+<section id="foodPage" class="page-section">
+  <div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h3 class="section-title mb-0">Food & Cafés</h3>
+      <input class="search-input" placeholder="Search food joints…" oninput="filterCards('foodCards', event.target.value)"/>
+    </div>
+    <div id="foodLoading" class="loader" style="display:none;"></div>
+    <div class="row" id="foodCards"></div>
+    <p class="muted mt-3">Includes curated legends + live nearby places from OpenStreetMap.</p>
+  </div>
+</section>
+
+<!-- TRANSPORT PAGE -->
+<section id="transportPage" class="page-section">
+  <div class="container py-5">
+    <h3 class="section-title mb-4">Getting around</h3>
+    <div class="row">
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Kolkata_Metro_Rake_At_Noapara.jpg/1280px-Kolkata_Metro_Rake_At_Noapara.jpg" alt="Metro">
+          <div class="card-body">
+            <h5 class="card-title">Metro Rail</h5>
+            <p class="card-text muted">Fastest way across the city. Find the nearest station instantly.</p>
+            <button class="btn btn-primary" onclick="findNearest('subway')"><i class="fa-solid fa-location-crosshairs"></i> Nearest metro</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Kolkata_Tram.jpg/1280px-Kolkata_Tram.jpg" alt="Tram">
+          <div class="card-body">
+            <h5 class="card-title">Trams</h5>
+            <p class="card-text muted">Iconic heritage trams for a slow, scenic ride.</p>
+            <button class="btn btn-primary" onclick="findNearest('tram')"><i class="fa-solid fa-train-tram"></i> Nearest tram stop</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Ferry_on_the_Hooghly_River%2C_Kolkata.jpg/1280px-Ferry_on_the_Hooghly_River%2C_Kolkata.jpg" alt="Ferry">
+          <div class="card-body">
+            <h5 class="card-title">Ferry</h5>
+            <p class="card-text muted">Hooghly river ferries connect both banks affordably.</p>
+            <button class="btn btn-primary" onclick="findNearest('ferry')"><i class="fa-solid fa-ship"></i> Nearest ferry ghat</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://images.unsplash.com/photo-1560340876-3e4f1f5f37ed?q=80&w=1200&auto=format&fit=crop" alt="Bus">
+          <div class="card-body">
+            <h5 class="card-title">Buses</h5>
+            <p class="card-text muted">Extensive network covering the whole city.</p>
+            <button class="btn btn-primary" onclick="findNearest('bus')"><i class="fa-solid fa-bus"></i> Nearest bus stop</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=1200&auto=format&fit=crop" alt="Cab">
+          <div class="card-body">
+            <h5 class="card-title">App Cabs</h5>
+            <p class="card-text muted">Tap to open ride apps. Pricing per app.</p>
+            <div class="btn-group">
+              <a class="btn btn-primary" target="_blank" rel="noopener" href="https://m.uber.com/ul/"><i class="fa-brands fa-uber"></i> Uber</a>
+              <a class="btn btn-primary" target="_blank" rel="noopener" href="https://book.olacabs.com/"><i class="fa-solid fa-taxi"></i> Ola</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+          <img class="card-img-top" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Ambassador_Taxi%2C_Kolkata.jpg/1280px-Ambassador_Taxi%2C_Kolkata.jpg" alt="Taxi">
+          <div class="card-body">
+            <h5 class="card-title">Yellow Taxi</h5>
+            <p class="card-text muted">Flag a classic Ambassador taxi on the street—cash fares.</p>
+            <button class="btn btn-primary" onclick="showTransportTips()">How to hail</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOTELS -->
+<section id="hotelPage" class="page-section">
+  <div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h3 class="section-title mb-0">Hotels near you</h3>
+      <div>
+        <button class="btn btn-outline-light mr-2" onclick="openExternal('https://www.booking.com/city/in/kolkata.html')">Booking.com</button>
+        <button class="btn btn-outline-light" onclick="openExternal('https://www.oyorooms.com/hotels-in-kolkata/')">OYO</button>
+      </div>
+    </div>
+    <p class="muted">Powered by OpenStreetMap Overpass API (no key needed). Use your location for better results.</p>
+    <div class="mb-3">
+      <button class="btn btn-primary" onclick="fetchHotels()"><i class="fa-solid fa-location-crosshairs mr-1"></i> Find hotels near me</button>
+    </div>
+    <div id="hotelLoading" class="loader" style="display:none;"></div>
+    <div class="row" id="hotelCards"></div>
+  </div>
+</section>
+
+<!-- SAVED -->
+<section id="bookmarksPage" class="page-section">
+  <div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h3 class="section-title mb-0">Saved places</h3>
+      <button class="btn btn-outline-light" onclick="exportItinerary()">Export itinerary</button>
+    </div>
+    <div class="row" id="savedCards"></div>
+    <p class="muted mt-3" id="savedEmpty" style="display:none;">No saved items yet. Tap the ❤️ on any card to save.</p>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content soft-card">
+      <div class="modal-header">
+        <h5 class="modal-title" id="messageModalTitle">Message</h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body" id="messageModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery + Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- App JS -->
+<script src="script.js"></script>
+</body>
+</html>
